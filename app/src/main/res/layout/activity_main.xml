@@ -15,8 +15,8 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:id="@+id/bottom"
-        android:gravity="bottom"
-        android:layout_height="match_parent">
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content">
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
