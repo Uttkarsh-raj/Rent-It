@@ -2,6 +2,7 @@ package com.example.rent_it.Adapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -60,13 +60,22 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull UserAdapter.ViewHolder holder, int i) {
         firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
+//        if (i < 0 || i >= mUser.size()) {
+//            return; // Skip binding for out-of-bounds index
+//        }
         final User user=mUser.get(i);
+        if (user == null) {
+            Log.d("UserAdapter", "User at index " + i + " is null.");
+            return; // Skip binding for null user
+        }
+        Log.d("UserAdapter", "User: " + user.getId());
+        Log.d("UserAdapter", "User: " + user.getUserName());
         holder.btn_follow.setVisibility(View.VISIBLE);
         holder.username.setText(user.getUserName());
-        holder.username.setText(user.getFullName());
+        holder.fullname.setText(user.getFullName());
         Glide.with(mcontext).load(user.getImageUrl()).into(holder.image_profile);
         isFollowing(user.getId(),holder.btn_follow);
-        if(user.getId().equals(firebaseUser.getUid())){
+        if(user.getId()!=null && user.getId().equals(firebaseUser.getUid())){
             holder.btn_follow.setVisibility(View.GONE);
         }
 
@@ -76,7 +85,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 SharedPreferences.Editor editor= mcontext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit();
                 editor.putString("profileid", user.getId());
                 editor.apply();
-                ((FragmentActivity)mcontext).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new ProfileFragment()).commit();
+                ((FragmentActivity)mcontext).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new ProfileFragment())
+                        .addToBackStack(null)
+                        .commit();
+
+//                ((FragmentActivity)mcontext).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new ProfileFragment()).commit();
             }
         });
 
@@ -94,25 +108,54 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         });
     }
 
-    private void isFollowing(String userId,Button button){
-        DatabaseReference reference=FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid()).child("following");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.child(userId).exists()){
+//    private void isFollowing(String userId,Button button){
+//        DatabaseReference reference=FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid()).child("following");
+//        reference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+////                if(snapshot.child(userId).exists()){
+////                    button.setText("following");
+////                }else{
+////                    button.setText("follow");
+////                }
+//                if (userId != null) { // Add this null check
+//                    if(snapshot.child(userId).exists()){
+//                        button.setText("following");
+//                    } else {
+//                        button.setText("follow");
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+private void isFollowing(String userId, Button button) {
+    DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid()).child("following");
+    reference.addValueEventListener(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (userId != null) {
+                if (snapshot.child(userId).exists()) {
+                    Log.d("UserAdapter", "isFollowing: User " + userId + " is following.");
                     button.setText("following");
-                }else{
+                } else {
+                    Log.d("UserAdapter", "isFollowing: User " + userId + " is not following.");
                     button.setText("follow");
                 }
+            } else {
+                Log.d("UserAdapter", "isFollowing: userId is null.");
             }
+        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-    }
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.e("UserAdapter", "isFollowing: DatabaseError: " + error.getMessage());
+        }
+    });
+}
 
     @Override
     public int getItemCount() {

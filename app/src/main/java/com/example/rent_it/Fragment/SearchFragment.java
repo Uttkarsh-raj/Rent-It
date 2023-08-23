@@ -1,18 +1,18 @@
 package com.example.rent_it.Fragment;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 
 import com.example.rent_it.Adapter.UserAdapter;
 import com.example.rent_it.Model.User;
@@ -45,7 +45,12 @@ public class SearchFragment extends Fragment {
         mUser=new ArrayList<>();
         userAdapter=new UserAdapter(getContext(),mUser);
         recyclerView.setAdapter(userAdapter);
-        readUser();
+        try {
+            readUser();
+        }catch (Exception e){
+            Log.d("readUser", " Read User: "+e.getMessage());
+        }
+
         search_bar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
