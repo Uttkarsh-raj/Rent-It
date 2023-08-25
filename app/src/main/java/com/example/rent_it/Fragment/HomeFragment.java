@@ -1,6 +1,7 @@
 package com.example.rent_it.Fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,12 @@ public class HomeFragment extends Fragment {
         postLists=new ArrayList<>();
         postAdapter=new PostAdapter(getContext(),postLists);
         recyclerView.setAdapter(postAdapter);
+        try {
+            checkFollowing();
+        }catch (Exception e){
+            Log.d("CheckFollow", "Check: "+e.getMessage());
+        }
+
 
         return view;
     }
@@ -68,25 +75,32 @@ public class HomeFragment extends Fragment {
     }
 
     private void readPosts(){
-        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Posts");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                postLists.clear();
-                for (DataSnapshot snapshot1:snapshot.getChildren()){
-                    Post post=snapshot1.getValue(Post.class);
-                    for(String id:followingList){
-                        if(post.getPublisher().equals(id)){
-                            postLists.add(post);
+
+        try {
+            DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Posts");
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    postLists.clear();
+                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+                        Post post=snapshot1.getValue(Post.class);
+                        for(String id:followingList){
+                            if(post.getPublisher().equals(id)){
+                                postLists.add(post);
+                            }
                         }
                     }
+                    postAdapter.notifyDataSetChanged();
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        });
+                }
+            });
+        }catch (Exception e){
+            Log.d("ReadPost", "Read: "+e.getMessage());
+        }
+
     }
 }

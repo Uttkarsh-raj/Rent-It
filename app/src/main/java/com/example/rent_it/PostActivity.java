@@ -119,7 +119,7 @@ public class PostActivity extends AppCompatActivity {
                         String postid = reference.push().getKey();
                         HashMap<String, Object> hashMap = new HashMap<>();
                         hashMap.put("postid", postid);
-                        hashMap.put("postimage", myUrl);
+                        hashMap.put("postImage", myUrl);
                         hashMap.put("description", description.getText().toString());
                         hashMap.put("title", title.getText().toString());
                         hashMap.put("publisher", FirebaseAuth.getInstance().getCurrentUser().getUid());
