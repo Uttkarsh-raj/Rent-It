@@ -65,6 +65,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                 holder.title.setText(post.getDescription());
             }
             publisherInfo(holder.image_profile,holder.username,holder.publisher,post.getPublisher());
+            isLiked(post.getPostId(),holder.like);
+            nrLikes(holder.likes,post.getPostId());
+            holder.like.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(holder.like.getTag().equals("like")){
+                        FirebaseDatabase.getInstance().getReference().child("Likes").child(post.getPostId()).child(firebaseUser.getUid()).setValue(true);
+                    }else{
+                        FirebaseDatabase.getInstance().getReference().child("Likes").child(post.getPostId()).child(firebaseUser.getUid()).removeValue();
+                    }
+                }
+            });
         }catch (Exception e){
             Log.d("PostError", "PostError: "+post.getPostImage());
             Log.d("PostError", "PostError: "+mContext);
@@ -88,6 +100,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             image_profile=itemView.findViewById(R.id.image_profile);
             post_image=itemView.findViewById(R.id.post_image);
             like=itemView.findViewById(R.id.like);
+            likes=itemView.findViewById(R.id.likes);
             comment=itemView.findViewById(R.id.comment);
             save=itemView.findViewById(R.id.bookmark);
             discription=itemView.findViewById(R.id.description);
@@ -95,6 +108,43 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             comments=itemView.findViewById(R.id.comments);
             username=itemView.findViewById(R.id.username);
         }
+    }
+
+    private  void isLiked(String postId,ImageView imageView){
+        FirebaseUser firebaseUser=FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference reference=FirebaseDatabase.getInstance().getReference().child("Likes").child(postId);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child(firebaseUser.getUid()).exists()){
+                    imageView.setImageResource(R.drawable.ic_liked);
+                    imageView.setTag("liked");
+                }else{
+                    imageView.setImageResource(R.drawable.ic_like);
+                    imageView.setTag("like");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void nrLikes(TextView likes,String postId){
+        DatabaseReference reference=FirebaseDatabase.getInstance().getReference().child("Likes").child(postId);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                likes.setText(snapshot.getChildrenCount()+" likes");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void publisherInfo(ImageView image_profile,TextView userName,TextView publisher,String userId){
