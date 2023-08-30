@@ -39,13 +39,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
     public  class ViewHolder extends  RecyclerView.ViewHolder{
         public TextView username;
-        public TextView fullname;
         public CircleImageView image_profile;
+        public TextView fullname;
+        public TextView email;
         public Button btn_follow;
         public ViewHolder(@NonNull View itemView){
             super(itemView);
             username=itemView.findViewById(R.id.username);
             fullname=itemView.findViewById(R.id.fullname);
+            email=itemView.findViewById(R.id.email);
             image_profile=itemView.findViewById(R.id.image_profile);
             btn_follow=itemView.findViewById(R.id.follow);
         }
@@ -72,7 +74,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         Log.d("UserAdapter", "User: " + user.getUserName());
         holder.btn_follow.setVisibility(View.VISIBLE);
         holder.username.setText(user.getUserName());
-        holder.fullname.setText(user.getFullName());
+        holder.fullname.setText("@"+user.getFullName());
+        holder.email.setText(user.getEmail());
         Glide.with(mcontext).load(user.getImageUrl()).into(holder.image_profile);
         isFollowing(user.getId(),holder.btn_follow);
         if(user.getId()!=null && user.getId().equals(firebaseUser.getUid())){

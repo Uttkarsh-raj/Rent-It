@@ -4,18 +4,21 @@ public class User {
     private  String id;
     private  String userName;
     private  String fullName;
+    private String email;
     private  String imageUrl;
     private  String bio;
 
-    public User(String id, String userName, String fullName, String imageUrl, String bio) {
+    public User(String id, String userName, String fullName, String email, String imageUrl, String bio) {
         this.id = id;
         this.userName = userName;
         this.fullName = fullName;
+        this.email = email;
         this.imageUrl = imageUrl;
         this.bio = bio;
     }
 
-    public  User(){}
+    public  User(){
+    }
 
 
     public String getBio() {
@@ -56,5 +59,13 @@ public class User {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

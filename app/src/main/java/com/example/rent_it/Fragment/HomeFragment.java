@@ -84,11 +84,13 @@ public class HomeFragment extends Fragment {
                     postLists.clear();
                     for (DataSnapshot snapshot1:snapshot.getChildren()){
                         Post post=snapshot1.getValue(Post.class);
-                        for(String id:followingList){
-                            if(post.getPublisher().equals(id)){
-                                postLists.add(post);
-                            }
-                        }
+                        postLists.add(post);
+                        //when want to see the posts that you are following only
+//                        for(String id:followingList){
+//                            if(post.getPublisher().equals(id)){
+//                                postLists.add(post);
+//                            }
+//                        }
                     }
                     postAdapter.notifyDataSetChanged();
                 }
