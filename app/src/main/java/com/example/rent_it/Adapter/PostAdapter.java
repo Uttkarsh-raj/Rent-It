@@ -62,11 +62,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             }
             if(post.getTitle().equals("")){
                 holder.title.setVisibility(View.GONE);
+                holder.email.setVisibility(View.GONE);
             }else{
                 holder.title.setVisibility(View.VISIBLE);
-                holder.title.setText(post.getDescription());
+                holder.title.setText(post.getTitle());
+                holder.email.setVisibility(View.VISIBLE);
+                holder.email.setText(post.getEmail());
             }
-            publisherInfo(holder.image_profile,holder.username,holder.publisher,post.getPublisher());
+            publisherInfo(holder.image_profile,holder.username,holder.email,holder.publisher,post.getPublisher());
             isLiked(post.getPostId(),holder.like);
             nrLikes(holder.likes,post.getPostId());
             getComments(post.getPostId(),holder.comments);
@@ -116,7 +119,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView image_profile,post_image,like,comment,save;
-        public TextView username,likes,publisher,discription,comments,title;
+        public TextView username,likes,publisher,discription,comments,title,email;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -130,6 +133,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             title=itemView.findViewById(R.id.title);
             comments=itemView.findViewById(R.id.comments);
             username=itemView.findViewById(R.id.username);
+            email=itemView.findViewById(R.id.email);
         }
     }
 
@@ -185,7 +189,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         });
     }
 
-    private void publisherInfo(ImageView image_profile,TextView userName,TextView publisher,String userId){
+    private void publisherInfo(ImageView image_profile,TextView userName,TextView email,TextView publisher,String userId){
         DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users").child(userId);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -196,6 +200,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                         Glide.with(mContext).load(user.getImageUrl()).into(image_profile);
                         userName.setText(user.getUserName());
                         publisher.setText(user.getUserName());
+                        email.setText(user.getEmail());
                     }catch (Exception e){
                         Log.d("PostError", "PostError: "+user.getImageUrl());
                         Log.d("PostError", "PostError: "+mContext);

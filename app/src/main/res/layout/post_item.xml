@@ -16,11 +16,17 @@
             android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_margin="10dp"
                 android:id="@+id/image_profile"
                             />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom= "10dp"
+                android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/username"
@@ -29,9 +35,18 @@
                 android:layout_gravity="center_vertical"
                 android:textColor="@color/black"
                 android:textSize="16sp"
-
                 android:textStyle="bold" />
-            <!--                android:text="UserName"/>-->
+                <!--                android:text="UserName"/>-->
+                <TextView
+                android:id="@+id/email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/grey"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <TextView
@@ -60,7 +75,7 @@
         <ImageView
             android:id="@+id/post_image"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="220dp"
             android:scaleType="centerCrop"/>
         <!--            android:src="@mipmap/ic_launcher"/>-->
         <RelativeLayout

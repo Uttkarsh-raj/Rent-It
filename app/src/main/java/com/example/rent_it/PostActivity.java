@@ -123,6 +123,7 @@ public class PostActivity extends AppCompatActivity {
                         hashMap.put("description", description.getText().toString());
                         hashMap.put("title", title.getText().toString());
                         hashMap.put("publisher", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        hashMap.put("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
                         reference.child(postid).setValue(hashMap);
                         progressDialog.dismiss();

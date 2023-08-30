@@ -23,7 +23,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/username"
+            android:id="@+id/fullname"
             android:maxLines="1"
             android:text="username"
             android:textStyle="bold"
@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/fullname"
+                android:id="@+id/username"
                 android:layout_marginStart="8dp"
                 android:maxLines="1"
                 android:text="Full Name"
