@@ -1,7 +1,6 @@
 package com.example.rent_it.Adapter;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,9 +84,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences.Editor editor= mcontext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit();
-                editor.putString("profileid", user.getId());
-                editor.apply();
+//                SharedPreferences.Editor editor= mcontext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit();
+//                editor.putString("profileid", user.getId());
+//                editor.apply();
                 ((FragmentActivity)mcontext).getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new ProfileFragment())
                         .addToBackStack(null)

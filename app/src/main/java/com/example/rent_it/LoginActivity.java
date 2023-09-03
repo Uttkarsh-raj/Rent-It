@@ -2,21 +2,21 @@ package com.example.rent_it;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.identity.BeginSignInRequest;
-import com.google.android.gms.auth.api.identity.SignInCredential;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.rent_it.Model.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -29,6 +29,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -95,24 +100,151 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct){
-        Log.d(TAG,"FirebaseAuthWithGoogle:"+acct.getId());
-        AuthCredential credential= GoogleAuthProvider.getCredential(acct.getIdToken(),null);
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d(TAG, "FirebaseAuthWithGoogle:" + acct.getId());
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mFirebaseAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()){
-                    Log.d(TAG,"Sign In with Credentials Success");
-                    FirebaseUser user= mFirebaseAuth.getCurrentUser();
-                    Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                    startActivity(intent);
-                }else{
-                    Log.d(TAG,"Sign In with Credentials: Failure",task.getException());
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "Sign In with Credentials Success");
+                    FirebaseUser user = mFirebaseAuth.getCurrentUser();
+
+                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+
+                    // Check if the user already exists in the database
+                    reference.orderByChild("email").equalTo(user.getEmail()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                // User already exists, no need to add again
+                                progressDialog.dismiss();
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            } else {
+                                // User doesn't exist, add user data
+                                try {
+                                    Log.d("onDataChange", "onDataChange: "+user.getEmail());
+                                    String userId = reference.push().getKey();
+                                    User userData = new User(userId, user.getDisplayName().split(" ")[0], user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString(), "Hey there! I am looking for a tenant");
+                                    reference.child(userId).setValue(userData);
+                                    SharedPreferences prefs=getSharedPreferences("PREFS", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = prefs.edit();
+                                    Log.d("onDataChange", "onDataChange: "+userId);
+                                    editor.clear();
+                                    editor.apply();
+                                    editor.putString("profileid",userId);
+                                    editor.apply();
+                                    Log.d("onDataChange", "onDataChange: "+prefs.getString("profileid","none"));
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                }catch (Exception e){
+                                    Log.d("LoginError", "LoginError: "+e.getMessage());
+                                }
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            // Handle onCancelled
+                        }
+                    });
+                } else {
+                    Log.d("Sign In with Credentials", "Sign In with Credentials: Failure", task.getException());
                     Toast.makeText(LoginActivity.this, "Sign In with Credentials: Failure", Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
+
+
+//    private void firebaseAuthWithGoogle(GoogleSignInAccount acct){
+//
+//        Log.d(TAG,"FirebaseAuthWithGoogle:"+acct.getId());
+//        AuthCredential credential= GoogleAuthProvider.getCredential(acct.getIdToken(),null);
+//        mFirebaseAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<AuthResult> task) {
+//                if (task.isSuccessful()){
+//                    Log.d(TAG,"Sign In with Credentials Success");
+//                    FirebaseUser user= mFirebaseAuth.getCurrentUser();
+//
+//
+//                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+//                    String userId = reference.push().getKey();
+//                    HashMap<String, Object> hashMap = new HashMap<>();
+//                    hashMap.put("id", userId);
+//                    hashMap.put("imageUrl", user.getPhotoUrl());
+//                    hashMap.put("fullName", user.getDisplayName());
+//                    hashMap.put("userName", user.getDisplayName().split(" ")[0]);
+//                    hashMap.put("bio", "Hey there! I am looking for a tenant");
+//                    hashMap.put("email", user.getEmail());
+//
+//                    reference.child(userId).setValue(hashMap);
+//                    progressDialog.dismiss();
+//                    Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+//                    startActivity(intent);
+//                }else{
+//                    Log.d(TAG,"Sign In with Credentials: Failure",task.getException());
+//                    Toast.makeText(LoginActivity.this, "Sign In with Credentials: Failure", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        });
+//    }
+//
+//    private void uploadImage() {
+//        ProgressDialog progressDialog = new ProgressDialog(this);
+//        progressDialog.setMessage("Posting");
+//        progressDialog.setCancelable(true);
+//        progressDialog.show();
+//
+//        if (imageUrl != null) {
+//            StorageReference fileReference = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(imageUrl));
+//            uploadTask = fileReference.putFile(imageUrl);
+//            Log.d("uploadTask", "Upload Task :" + uploadTask);
+//            uploadTask.continueWithTask(new Continuation() {
+//
+//                @Override
+//                public Object then(@NonNull Task task) throws Exception {
+//                    if (!task.isSuccessful()) {
+//                        throw task.getException();
+//                    }
+//                    return fileReference.getDownloadUrl();
+//                }
+//            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+//                @Override
+//                public void onComplete(@NonNull Task<Uri> task) {
+//                    if (task.isSuccessful()) {
+//                        Uri downloadUri = task.getResult();
+//                        myUrl = downloadUri.toString();
+//                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Posts");
+//                        String postid = reference.push().getKey();
+//                        HashMap<String, Object> hashMap = new HashMap<>();
+//                        hashMap.put("postid", postid);
+//                        hashMap.put("postImage", myUrl);
+//                        hashMap.put("description", description.getText().toString());
+//                        hashMap.put("title", title.getText().toString());
+//                        hashMap.put("publisher", FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                        hashMap.put("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+//
+//                        reference.child(postid).setValue(hashMap);
+//                        progressDialog.dismiss();
+//                        startActivity(new Intent(PostActivity.this, MainActivity.class));
+//                        finish();
+//                    } else {
+//                        Toast.makeText(PostActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//            }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(@NonNull Exception e) {
+//                    Toast.makeText(PostActivity.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        } else {
+//            Toast.makeText(this, "No Image Selected!", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
 }

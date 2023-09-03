@@ -1,7 +1,6 @@
 package com.example.rent_it;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -13,7 +12,6 @@ import com.example.rent_it.Fragment.HomeFragment;
 import com.example.rent_it.Fragment.ProfileFragment;
 import com.example.rent_it.Fragment.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,10 +28,10 @@ public class MainActivity extends AppCompatActivity {
 
         Bundle intent =getIntent().getExtras();
         if (intent!=null){
-            String publisher=intent.getString("publisherid");
-            SharedPreferences.Editor editor=getSharedPreferences("PREFS",MODE_PRIVATE).edit();
-            editor.putString("profileid",publisher);
-            editor.apply();
+//            String publisher=intent.getString("publisherid");
+//            SharedPreferences.Editor editor=getSharedPreferences("PREFS",MODE_PRIVATE).edit();
+//            editor.putString("profileid",publisher);
+//            editor.apply();
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new ProfileFragment()).commit();
         }else {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
@@ -77,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, PostActivity.class));
                 return true; // Return early to prevent fragment transaction
             } else if (itemId == R.id.nav_profile) {
-                SharedPreferences.Editor editor = getSharedPreferences("PREFS", MODE_PRIVATE).edit();
-                editor.putString("profileid", FirebaseAuth.getInstance().getCurrentUser().getUid());
-                editor.apply();
+//                SharedPreferences.Editor editor = getSharedPreferences("PREFS", MODE_PRIVATE).edit();
+//                editor.putString("profileid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                editor.apply();
                 selectedFragment = new ProfileFragment();
             }
 

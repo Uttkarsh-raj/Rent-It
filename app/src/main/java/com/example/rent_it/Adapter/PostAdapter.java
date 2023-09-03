@@ -189,31 +189,59 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         });
     }
 
-    private void publisherInfo(ImageView image_profile,TextView userName,TextView email,TextView publisher,String userId){
-        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users").child(userId);
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user=snapshot.getValue(User.class);
-                if(user!=null) {
-                    try{
-                        Glide.with(mContext).load(user.getImageUrl()).into(image_profile);
-                        userName.setText(user.getUserName());
-                        publisher.setText(user.getUserName());
-                        email.setText(user.getEmail());
-                    }catch (Exception e){
-                        Log.d("PostError", "PostError: "+user.getImageUrl());
-                        Log.d("PostError", "PostError: "+mContext);
-                        Log.d("PostError", "PostError: "+image_profile);
-                        Log.d("PostError", "PostError: "+e.getMessage());
-                    }
+//    private void publisherInfo(ImageView image_profile,TextView userName,TextView email,TextView publisher,String userId){
+//        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users").child(userId);
+//        reference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                User user=snapshot.getValue(User.class);
+//                if(user!=null) {
+//                    try{
+//                        Glide.with(mContext).load(user.getImageUrl()).into(image_profile);
+//                        userName.setText(user.getUserName());
+//                        publisher.setText(user.getUserName());
+//                        email.setText(user.getEmail());
+//                    }catch (Exception e){
+//                        Log.d("PostError", "PostError: "+user.getImageUrl());
+//                        Log.d("PostError", "PostError: "+mContext);
+//                        Log.d("PostError", "PostError: "+image_profile);
+//                        Log.d("PostError", "PostError: "+e.getMessage());
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
+private void publisherInfo(ImageView image_profile, TextView userName, TextView email, TextView publisher, String userId) {
+    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+    reference.addValueEventListener(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            User user = snapshot.getValue(User.class);
+            if (user != null) {
+                try {
+                    Glide.with(mContext).load(user.getImageUrl()).into(image_profile);
+                    userName.setText(user.getUserName());
+                    publisher.setText(user.getUserName());
+                    email.setText(user.getEmail());
+                } catch (Exception e) {
+                    Log.d("PostError", "Error loading user data: " + e.getMessage());
                 }
+            } else {
+                // Handle the case where user data is not available or not properly set in the post
+                // You can hide or display default values here
             }
+        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            // Handle onCancelled
+        }
+    });
+}
 
-            }
-        });
-    }
 }

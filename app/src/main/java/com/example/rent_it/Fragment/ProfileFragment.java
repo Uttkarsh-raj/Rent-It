@@ -51,47 +51,101 @@ public class ProfileFragment extends Fragment {
         followers=view.findViewById(R.id.followers);
         following=view.findViewById(R.id.following);
         log_out=view.findViewById(R.id.log_out);
+
         log_out.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut(); // Sign out the user
+
+//                SharedPreferences.Editor editor = prefs.edit();// Clear the SharedPreferences
+//                editor.clear();
+//                editor.apply(); // or editor.commit() if you want immediate write
+
                 Intent intent = new Intent(getContext(), LoginActivity.class); // Replace with your sign-up or login activity class
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear the task stack
                 startActivity(intent);
                 getActivity().finish();
             }
         });
-        userInfo();
+        userInfo(firebaseUser);
         getFollowers();
         getNrPosts();
         return view;
     }
-    private  void userInfo(){
-        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users").child(profile_id);
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (getContext()==null){
-                    return;
+//    private  void userInfo(FirebaseUser user){
+//        Log.d("DataChange", "userInfo: "+profile_id);
+//        String u =user.getUid();
+//        Log.d("DataChange", "userInfo: "+u);
+//        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users").child(u);
+//        Log.d("DataChange", "userInfo: "+reference);
+//        reference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (getContext()==null){
+//                    return;
+//                }
+//               try {
+//                   User user =snapshot.getValue(User.class);
+//                   Glide.with(getContext()).load(user.getImageUrl()).into(image_profile);
+//                   username.setText(user.getUserName());
+//                   bio.setText(user.getBio());
+//                   email.setText(user.getEmail());
+//                   fullname.setText("@"+user.getFullName());
+//               }catch (Exception e){
+//                   Log.d("DataChange", "onDataChange: "+e);
+//               }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
+private void userInfo(FirebaseUser user) {
+    Log.d("onDataChange", "userInfo: " + profile_id);
+    String u = user.getUid();
+    Log.d("onDataChange", "userInfo: " + u);
+    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(profile_id);
+    Log.d("onDataChange", "userInfo: " + reference);
+    reference.addValueEventListener(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (getContext() == null) {
+                return;
+            }
+            try {
+                if (snapshot.exists()) {
+                    User user = snapshot.getValue(User.class);
+                    if (user != null) {
+                        String imageUrl = user.getImageUrl();
+                        if (imageUrl != null) {
+                            Glide.with(getContext()).load(imageUrl).into(image_profile);
+                            username.setText(user.getUserName());
+                            bio.setText(user.getBio());
+                            email.setText(user.getEmail());
+                            fullname.setText("@" + user.getFullName());
+                        } else {
+                            Log.d("DataChange", "onDataChange: Image URL is null");
+                        }
+                    } else {
+                        Log.d("DataChange", "onDataChange: User object is null");
+                    }
+                } else {
+                    Log.d("DataChange", "onDataChange: Snapshot does not exist");
                 }
-               try {
-                   User user =snapshot.getValue(User.class);
-                   Glide.with(getContext()).load(user.getImageUrl()).into(image_profile);
-                   username.setText(user.getUserName());
-                   bio.setText(user.getBio());
-                   email.setText(user.getEmail());
-                   fullname.setText("@"+user.getFullName());
-               }catch (Exception e){
-                   Log.d("DataChange", "onDataChange: "+e);
-               }
+            } catch (Exception e) {
+                Log.e("DataChange", "onDataChange: Error", e);
             }
+        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.e("DataChange", "onCancelled: Database error", error.toException());
+        }
+    });
+}
 
-            }
-        });
-    }
 
     private  void getFollowers(){
         DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Follow").child(firebaseUser.getUid()).child("followers");

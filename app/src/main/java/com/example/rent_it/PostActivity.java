@@ -2,7 +2,9 @@ package com.example.rent_it;
 
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -95,6 +97,9 @@ public class PostActivity extends AppCompatActivity {
         progressDialog.setMessage("Posting");
         progressDialog.setCancelable(true);
         progressDialog.show();
+        SharedPreferences prefs = getSharedPreferences("PREFS", Context.MODE_PRIVATE);
+        String profile_id = prefs.getString("profileid", "none");
+
 
         if (imageUrl != null) {
             StorageReference fileReference = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(imageUrl));
@@ -122,7 +127,7 @@ public class PostActivity extends AppCompatActivity {
                         hashMap.put("postImage", myUrl);
                         hashMap.put("description", description.getText().toString());
                         hashMap.put("title", title.getText().toString());
-                        hashMap.put("publisher", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        hashMap.put("publisher", profile_id);
                         hashMap.put("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
                         reference.child(postid).setValue(hashMap);
